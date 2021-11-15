@@ -53,8 +53,8 @@ public class DB {
 	}
 	
 	/*Classes criadas para tratar a exceção através da Classe de exceção personalizada
-	 * tratando como uma RuntimeException, dessa forma, evitando que seja necessário
-	 * circundar todo fechando de conexão no programa principal com um try catch*/
+	 * tratando-a como uma RuntimeException, dessa forma, evitando que seja necessário
+	 * circundar todo fechamento de conexão no programa principal com um try catch*/
 	public static void closeStatement(Statement statement) {
 		if(statement != null) {
 			try {
