@@ -1,8 +1,8 @@
 package application;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import database.DataBase;
 import database.DbException;
@@ -12,29 +12,44 @@ public class Program {
 	public static void main(String[] args) {
 		
 		Connection connection = null;
-		PreparedStatement ps = null;
+		Statement ps = null;
 		
 		try {
 			
 			connection = DataBase.getConnection();
-			ps = connection.prepareStatement(
-					"DELETE FROM "
-					+"department "
-					+ "WHERE "
-					+ "id = ?");
 			
-			/* Ao tentar apagar um department utilizado como FK em outra tabela
-			 * será disparada uma exceção de integridade referencial */			
-			ps.setDouble(1, 2);			
+			/* Transação só será totalmente finalizada após a confirmação do commit manual*/
+			connection.setAutoCommit(false);
 			
-			int rowsAffected = ps.executeUpdate();
+			ps = connection.createStatement();
 			
-			System.out.println("Rows affected: "+ rowsAffected);
+			int rows1 = ps.executeUpdate("UPDATE seller SET BaseSalary = 2090 WHERE DepartmentId = 1");
 			
-		}catch (SQLException e) {
-			throw new DbException(e.getMessage());
+			/*int x = 1;
+			if (x < 2) {
+				throw new SQLException("Fake error");
+			}*/
+			
+			int rows2 = ps.executeUpdate("UPDATE seller SET BaseSalary = 3090 WHERE DepartmentId = 2");
+			
+			/* Confirmação manual da transação */
+			connection.commit();
+			
+			System.out.println("rows1 = "+ rows1);
+			System.out.println("rows2 = "+ rows2);
+			
+		} catch (SQLException e) {
+			try {
+				connection.rollback();
+				throw new DbException("Transaction rolled back! Caused by: " + e.getMessage());
+				
+			} catch (SQLException e1) {
+				throw new DbException("Error trying to rollback! Caused by: " + e1.getMessage());
+			}
+			
+		} finally {
+			DataBase.closeStatement(ps);
+			DataBase.closeConnection();
 		}
-
 	}
-
 }
