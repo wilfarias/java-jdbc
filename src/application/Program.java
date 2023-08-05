@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import database.DataBase;
+import database.DbException;
 
 public class Program {
 
@@ -17,20 +18,21 @@ public class Program {
 			
 			connection = DataBase.getConnection();
 			ps = connection.prepareStatement(
-					"UPDATE seller "
-					+ "SET BaseSalary = BaseSalary + ? "
+					"DELETE FROM "
+					+"department "
 					+ "WHERE "
-					+ "(DepartmentId = ?)");
+					+ "id = ?");
 			
-			ps.setDouble(1, 200.0);
-			ps.setInt(2, 2);
+			/* Ao tentar apagar um department utilizado como FK em outra tabela
+			 * será disparada uma exceção de integridade referencial */			
+			ps.setDouble(1, 2);			
 			
 			int rowsAffected = ps.executeUpdate();
 			
 			System.out.println("Rows affected: "+ rowsAffected);
 			
 		}catch (SQLException e) {
-			e.printStackTrace();
+			throw new DbException(e.getMessage());
 		}
 
 	}
