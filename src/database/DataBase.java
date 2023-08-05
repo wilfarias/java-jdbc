@@ -9,13 +9,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 
-public class DB {
-
+public class DataBase {
+	
 	private static Connection connection = null;
-
-	/* Criar uma conecção no JDBC é instanciar um objeto do tipo connection */
+	
 	public static Connection getConnection() {
-		if (connection == null) {
+		if(connection == null) {			
 			try {
 				Properties properties = loadProperties();
 				String url = properties.getProperty("dburl");
@@ -37,24 +36,17 @@ public class DB {
 		}
 	}
 
-	/*
-	 * A classe Properties, nativa do java, carrega as configurações do arquivo
-	 * db.properties e trata a exceção com a exceção personalizada criada
-	 * DbException
-	 */
 	private static Properties loadProperties() {
-		try (FileInputStream fs = new FileInputStream("db.properties")) {
+		try (FileInputStream file = new FileInputStream("db.properties")){			
 			Properties properties = new Properties();
-			properties.load(fs);
+			properties.load(file);
 			return properties;
+		
 		} catch (IOException e) {
 			throw new DbException(e.getMessage());
 		}
 	}
 	
-	/*Classes criadas para tratar a exceção através da Classe de exceção personalizada
-	 * tratando-a como uma RuntimeException, dessa forma, evitando que seja necessário
-	 * circundar todo fechamento de conexão no programa principal com um try catch*/
 	public static void closeStatement(Statement statement) {
 		if(statement != null) {
 			try {
@@ -74,5 +66,4 @@ public class DB {
 			}
 		}
 	}
-
 }
